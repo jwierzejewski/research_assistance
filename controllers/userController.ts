@@ -17,12 +17,20 @@ export const login = async (req: Request, res: Response) => {
         }
     });
     if (!user) {
-        return res.status(400).json({error: 'User not found'});
+        (req.session as any).message = "Incorrect user credentials"
+        return res.redirect('/');
+        //return res.status(400).json({error: 'User not found'});
     }
     if (!await bcrypt.compare(password,user.password)) {
-        return res.status(400).json({error: 'Incorrect user credentials'});
+        //return res.status(400).json({error: 'Incorrect user credentials'});
+        (req.session as any).message = "Incorrect user credentials"
+        return res.redirect('/');
     }
-    return res.json({message: 'Logged in successfully', token: generateAccessToken(username)});
+    (req.session as any).loggedin = true;
+    (req.session as any).username = username;
+    (req.session as any).message = "Logged in successfully"
+    return res.redirect('/');
+    //return res.json({message: 'Logged in successfully', token: generateAccessToken(username)});
 };
 
 export const signup = async (req: Request, res: Response) => {
@@ -52,9 +60,12 @@ export const signup = async (req: Request, res: Response) => {
                 lastname: lastname,
             }
         });
-        if (userSignup)
-            return res.json({message: 'Signup successfully'});
+        if (userSignup) {
+            (req.session as any).message = 'Signup successfully';
+            res.redirect('/')
+        }
     } else {
-        return res.status(400).json({error: 'User exist'});
+        (req.session as any).message = 'User already exist';
+        res.redirect('/signup')
     }
 };

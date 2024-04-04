@@ -16,6 +16,7 @@ model User {
   password String
   firstname String
   lastname String
+  sharedItems Item[]
 }
 
 model Item {
@@ -28,18 +29,11 @@ model Item {
   link String?
   ownerUsername String
   file File?
+  sharedWith User[]
 
   @@unique([author,title,year,ownerUsername])
 
   category Category  @relation(fields: [categoryId], references: [id])
-}
-
-model Share {
-  id Int @id @default(autoincrement())
-  ownerUsername String
-  recipientUsername String
-
-  @@unique([ownerUsername,recipientUsername])
 }
 
 model File{

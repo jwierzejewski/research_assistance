@@ -17,54 +17,50 @@ export const addItemLink = async (req: Request, res: Response, next: NextFunctio
             year: parseInt(year),
             genre: genre,
             link: link,
-            ownerUsername: username
+            ownerUsername: (req.session as any).username
         },
     });
     if (!newItem) {
-        return res.status(400).json({error: "Item not added"})
+        (req.session as any).message = "Item not added"
+        return res.redirect('/addLink');
     }
-    res.json({message: "Item added successfully"})
+    (req.session as any).message = "Item added successfully"
+    return res.redirect('/');
 };
 
 export const getItems = async (req: Request, res: Response) => {
-    const {title, category, author, year, genre} = req.body;
-    const username = res.locals.username
-    const shared = await prisma.share.findMany({
-        where: {
-            recipientUsername: username
-        }
-    })
-    var usernameList: string[] = [username]
-    usernameList = [...usernameList, ...(shared.map(item => item.ownerUsername))]
+    const {title, categoryId, author, year, genre} = req.body;
+    const username = (req.session as any).username
     let where: Prisma.ItemWhereInput = {};
-    if (title !== undefined) {
+    if (title !== undefined && title!="") {
         where.title = {
             contains: title
         };
     }
-
-    if (category !== undefined) {
-        where.category = category
+    console.log("categoryId "+categoryId)
+    if (categoryId !== undefined && categoryId!="") {
+        where.categoryId = parseInt(categoryId)
     }
 
-    if (author !== undefined) {
+    if (author !== undefined && author!="") {
         where.author = {
             contains: author
         };
     }
 
-    if (year !== undefined) {
-        where.year = year;
+    if (year !== undefined && year!="") {
+        where.year = parseInt(year);
     }
 
-    if (genre !== undefined) {
+    if (genre !== undefined && genre!="") {
         where.genre = {
             contains: genre
         };
     }
-    where.ownerUsername = {
-        in: usernameList
-    }
+    where.OR = [
+    {ownerUsername: username},
+    {sharedWith: {some: {username: username}}}
+    ]
 
     const Items = await prisma.item.findMany({
         where: where,
@@ -78,9 +74,15 @@ export const getItems = async (req: Request, res: Response) => {
             }, category: true
         },
     })
+    console.log(Items)
     if (Items.length > 0) {
-        res.json({Items})
+        (req.session as any).items = Items
+        return res.redirect('/browse');
     } else {
-        res.status(400).json({error: "Items not found"})
+        (req.session as any).message = "Items not found"
+        console.log("pusto")
+        console.log(Items)
+        delete (req.session as any).items
+        return res.redirect('/browse');
     }
 };

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Reaserch Assistance - Home</title>
+</head>
+<body>
+
+{{#if loggedin}}
+<p>Logged in as: {{username}}</p>
+<a href="/logout">Log out</a>
+<a href="/addFile">Add File</a>
+<a href="/addLink">Add Link</a>
+<a href="/browse">Browse</a>
+{{else}}
+<form action="/login" method="post">
+    <input type="text" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <button type="submit">Log in</button>
+</form>
+<a href="/signup">Register</a>
+{{/if}}
+
+{{#if message}}
+    <p>{{message}}</p>
+{{/if}}
+
+
+</body>
+</html>

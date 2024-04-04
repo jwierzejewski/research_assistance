@@ -18,6 +18,7 @@ export const storage = multer.diskStorage({
 export const upload = multer({storage: storage});
 
 export const addItemFile = async (req: Request, res: Response, next: NextFunction) => {
+    console.log("addItemFile")
     try {
         if (!req.file) {
             return res.status(400).send('File not found.');
@@ -31,11 +32,13 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
                 author: author,
                 year: parseInt(year),
                 genre: genre,
-                ownerUsername: username
+                ownerUsername: (req.session as any).username
             },
         });
         if (!newItem) {
-            return res.status(400).json({error: "Item not added"})
+            (req.session as any).message = "Item not added"
+            return res.redirect('/');
+            //return res.status(400).json({error: "Item not added"})
         }
 
         const {originalname, mimetype, filename, path} = req.file;
@@ -49,7 +52,8 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
                 itemId: newItem.id
             },
         });
-        res.json({message: 'File added successfully'});
+        (req.session as any).message = "Item added successfully"
+        return res.redirect('/');
     } catch (error) {
         console.log("error")
         if (req.file)
@@ -76,11 +80,12 @@ export const getFile = async (req: Request, res: Response) => {
         if (!file) {
             return res.status(404).send('Plik nie został znaleziony.');
         }
+        console.log(file.filePath)
         const fileData = fs.createReadStream(file.filePath)
 
         res.setHeader('Content-Disposition', `attachment; filename=${file.originalName}`);
         res.setHeader('Content-Type', file.mimeType);
-        res.send(fileData);
+        fileData.pipe(res);
     } catch (error) {
         console.error('Błąd podczas pobierania pliku:', error);
         res.status(500).send('Wystąpił błąd podczas pobierania pliku.');
