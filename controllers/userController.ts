@@ -2,39 +2,13 @@ import {NextFunction, Request, Response} from "express";
 import {PrismaClient} from '@prisma/client';
 import bcrypt from "bcryptjs"
 import {MySession} from "../utils/mySession"
+import {IMessage} from "../utils/IMessage";
 
 
 const prisma = new PrismaClient();
 const salt = 10
-export const login = async (req: Request, res: Response) => {
-    const {username, password} = req.body;
-    console.log(req.body)
-    if (username === undefined || password === undefined) {
-        return res.status(400).json({error: 'Bad request: Missing required fields'});
-    }
-    const user = await prisma.user.findUnique({
-        where: {
-            username: username
-        }
-    });
-    if (!user) {
-        (req.session as any).message = "Incorrect user credentials"
-        return res.redirect('/');
-        //return res.status(400).json({error: 'User not found'});
-    }
-    if (!await bcrypt.compare(password,user.password)) {
-        //return res.status(400).json({error: 'Incorrect user credentials'});
-        (req.session as any).message = "Incorrect user credentials"
-        return res.redirect('/');
-    }
-    (req.session as MySession).loggedin = true;
-    (req.session as any).username = username;
-    (req.session as any).message = "Logged in successfully"
-    return res.redirect('/');
-    //return res.json({message: 'Logged in successfully', token: generateAccessToken(username)});
-};
 
-export const signup = async (req: Request, res: Response) => {
+export const signup = async (req: Request, res: Response):Promise<any> => {
     const {username, password, firstname, lastname} = req.body;
     if (
         username === undefined ||
@@ -62,12 +36,14 @@ export const signup = async (req: Request, res: Response) => {
             }
         });
         if (userSignup) {
-            (req.session as any).message = 'Signup successfully';
+            const msg: IMessage = {text: 'Signup successfully', isError: false};
+            (req.session as any).message = msg;
             res.redirect('/')
         }
     } else {
-        (req.session as any).message = 'User already exist';
-        res.redirect('/signup')
+        const msg: IMessage = {text: 'User already exist', isError: true};
+        (req.session as any).message = msg;
+        res.redirect('/user/signup')
     }
 };
 

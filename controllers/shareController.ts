@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { PrismaClient } from '@prisma/client';
+import {IUser} from "../utils/IUser";
+import {IMessage} from "../utils/IMessage";
 
 const prisma = new PrismaClient();
 
 export const shareItems = async (req: Request, res: Response):Promise<any> =>{
     const { recipientUsername, selectedItems } = req.body;
-    const username = (req.session as any).username
+    const username = (req.user as IUser).username
     console.log("selectedItems "+selectedItems)
     if (username === undefined || recipientUsername === undefined || selectedItems.length<0) {
         return res.status(400).json({ error: 'Bad request: Missing required fields' });
@@ -27,12 +29,14 @@ export const shareItems = async (req: Request, res: Response):Promise<any> =>{
                     }
                 });
                 if (!share) {
-                    (req.session as any).message = 'Sharing failed';
-                    return res.redirect('/browse')
+                    const msg: IMessage = {text: 'Sharing failed', isError: true};
+                    (req.session as any).message = msg;
+                    return res.redirect('/resources/browse')
                 }
             }
         }
-    (req.session as any).message = 'Items shared successfully';
+    const msg: IMessage = {text: 'Items shared successfully', isError: false};
+    (req.session as any).message = msg;
     (req.session as any).sharing = false;
-    return res.redirect('/browse')
+    return res.redirect('/resources/browse')
 };

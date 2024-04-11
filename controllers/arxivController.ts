@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import { parseString } from 'xml2js';
+import {IMessage} from "../utils/IMessage";
 
 export const getFromArxiv = async (req: Request, res: Response, next: NextFunction) => {
     const {title, author} = req.body;
@@ -36,9 +37,10 @@ export const getFromArxiv = async (req: Request, res: Response, next: NextFuncti
 
     if (data!.feed!.entry!.length>0) {
         (req.session as any).arxivItems = data!.feed!.entry
-        return res.redirect('/getFromArxiv');
+        return res.redirect('/resources/getFromArxiv');
     } else {
-        (req.session as any).message = "Documents not found"
-        return res.redirect('/getFromArxiv');
+        const msg: IMessage = {text: 'Documents not found', isError: true};
+        (req.session as any).message = msg;
+        return res.redirect('/resources/getFromArxiv');
     }
 };

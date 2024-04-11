@@ -1,7 +1,7 @@
 <div class = "item-list">
     <p>Items</p>
 {{#if sharing}}
-        <form action="/shareItems" method="post">
+        <form action="/resources/shareItems" method="post">
             {{#each items}}
                 <div class="item">
                     <div>Title: {{title}}</div>
@@ -31,13 +31,13 @@
                     <a href={{link}}>{{link}}</a>
                 {{/if}}
                 {{#if file}}
-                    <form action="/getFile/{{file.id}}" method="get">
+                    <form action="/resources/getFile/{{file.id}}" method="get">
                         <button class="small-button" type="submit">Download file</button>
                     </form>
                 {{/if}}
             </div>
     {{/each}}
-        <form action="/initSharing" method="get">
+        <form action="/resources/initSharing" method="get">
             <button class="small-button" type="submit">Share Items</button>
         </form>
 {{/if}}

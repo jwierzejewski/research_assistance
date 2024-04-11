@@ -1,9 +1,9 @@
 <div class="menu-bar">
         <a href="/">Home</a>
-        <a href="/logout">Log out</a>
+        <a href="/user/logout">Log out</a>
 </div>
     <div class="item-container">
-    <form class="item-form" action="/getItems" method="post">
+    <form class="item-form" action="/resources/getItems" method="post">
         <table>
             <tr>
                 <td><div class="label">title:</div></td>
@@ -44,7 +44,7 @@
 {{#if items}}
    {{>itemList}}
 {{else}}
-    <a class="small-button" href="/getFromArxiv">Search in arxiv</a>
+    <a class="small-button" href="/resources/getFromArxiv">Search in arxiv</a>
 {{/if}}
 </div>
 

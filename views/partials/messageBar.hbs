@@ -1,3 +1,9 @@
-<div class="message-bar">
-    {{message}}
-</div>
+{{#if message.isError}}
+    <div class="error-message-bar">
+        {{message.text}}
+    </div>
+{{else}}
+    <div class="message-bar">
+        {{message.text}}
+    </div>
+{{/if}}
