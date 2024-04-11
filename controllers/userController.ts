@@ -1,7 +1,8 @@
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import {PrismaClient} from '@prisma/client';
-import {generateAccessToken} from "../services/authentication";
 import bcrypt from "bcryptjs"
+import {MySession} from "../utils/mySession"
+
 
 const prisma = new PrismaClient();
 const salt = 10
@@ -26,7 +27,7 @@ export const login = async (req: Request, res: Response) => {
         (req.session as any).message = "Incorrect user credentials"
         return res.redirect('/');
     }
-    (req.session as any).loggedin = true;
+    (req.session as MySession).loggedin = true;
     (req.session as any).username = username;
     (req.session as any).message = "Logged in successfully"
     return res.redirect('/');
@@ -69,3 +70,10 @@ export const signup = async (req: Request, res: Response) => {
         res.redirect('/signup')
     }
 };
+
+export function isAuthenticated(req: Request ,res: Response, next: NextFunction): Response | void {
+    if(req.user)
+        return next();
+    else
+        res.redirect("/");
+}

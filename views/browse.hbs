@@ -1,33 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Reaserch Assistance - Browse</title>
-</head>
-<body>
-{{#if loggedin}}
-    <a href="/logout">Log out</a>
-    <a href="/">Home</a>
-    <form action="/getItems" method="post">
+<div class="menu-bar">
+        <a href="/">Home</a>
+        <a href="/logout">Log out</a>
+</div>
+    <div class="item-container">
+    <form class="item-form" action="/getItems" method="post">
         <table>
             <tr>
-                <td>title:</td>
+                <td><div class="label">title:</div></td>
                 <td><input type="text" name="title"/></td>
             </tr>
             <tr>
-                <td>author</td>
+                <td><div class="label">author:</div></td>
                 <td><input type="text" name="author"/></td>
             </tr>
             <tr>
-                <td>year:</td>
+                <td><div class="label">year:</div></td>
                 <td><input type="number" name="year" min="1495" max="2024"/></td>
             </tr>
             <tr>
-                <td>genre:</td>
+                <td><div class="label">genre:</div></td>
                 <td> <input type="text" name="genre"/></td>
             </tr>
             <tr>
-                <td>category:</td>
+                <td><div class="label">category:</div></td>
                 <td>
                     <select name="categoryId">
                     <option value="">all</option>
@@ -38,63 +33,20 @@
                 </td>
             </tr>
             <tr>
+                <td></td>
                 <td>
                     <button type="submit">Search</button>
                 </td>
             </tr>
             </table>
     </form>
-{{/if}}
 
 {{#if items}}
-    <p>Items</p>
-    {{#if sharing}}
-        <form action="/shareItems" method="post">
-        {{#each items}}
-            <p>
-            <div>Title: {{title}}</div>
-            <div>Author: {{author}}</div>
-            <div>Year: {{year}}</div>
-            <div>Genre: {{genre}}</div>
-            <div>Category: {{category.name}}</div>
-            <div>Owner username: {{ownerUsername}}</div>
-            {{#if (eq ownerUsername ../username)}}
-            <input type="checkbox" name="selectedItems" value={{id}}>
-            {{/if}}
-            </p>
-        {{/each}}
-            <div>Recipient username:<input type="text" name="recipientUsername"></div>
-            <button type="submit">Share</button>
-        </form>
-    {{else}}
-        {{#each items}}
-            <p>
-            <div>Title: {{title}}</div>
-                <div>Author: {{author}}</div>
-                <div>Year: {{year}}</div>
-                <div>Genre: {{genre}}</div>
-                <div>Category: {{category.name}}</div>
-                <div>Owner username: {{ownerUsername}}</div>
-                {{#if link }}
-                    <a href={{link}}>{{link}}</a>
-                {{/if}}
-                {{#if file}}
-                    <form action="/getFile/{{file.id}}" method="get">
-                        <button type="submit">Download file</button>
-                    </form>
-                {{/if}}
-            </p>
-        {{/each}}
-        <form action="/initSharing" method="get">
-            <button type="submit">Share Items</button>
-        </form>
-    {{/if}}
+   {{>itemList}}
+
 {{/if}}
+</div>
 
 {{#if message}}
-    <p>{{message}}</p>
+    {{>messageBar}}
 {{/if}}
-
-
-</body>
-</html>

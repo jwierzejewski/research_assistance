@@ -1,33 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Reaserch Assistance - Add File</title>
-</head>
-<body>
-{{#if loggedin}}
-    <a href="/logout">Log out</a>
-    <a href="/">Home</a>
-    <form action="/addItemFile" method="post" enctype="multipart/form-data">
+ <div class="menu-bar">
+        <a href="/">Home</a>
+        <a href="/logout">Log out</a>
+    </div>
+    <div class="item-container">
+        <form class="item-form" action="/addItemFile" method="post" enctype="multipart/form-data">
         <table>
             <tr>
-                <td>title:</td>
+                <td><div class="label">title:</div></td>
                 <td><input type="text" name="title"/></td>
             </tr>
             <tr>
-                <td>author</td>
+                <td><div class="label">author:</div></td>
                 <td><input type="text" name="author"/></td>
             </tr>
             <tr>
-                <td>year:</td>
+                <td><div class="label">year:</div></td>
                 <td><input type="number" name="year" min="1495" max="2024"/></td>
             </tr>
             <tr>
-                <td>genre:</td>
+                <td><div class="label">genre:</div></td>
                 <td> <input type="text" name="genre"/></td>
             </tr>
             <tr>
-                <td>category:</td>
+                <td><div class="label">category:</div></td>
                 <td>
                     <select name="categoryId">
                         {{#each categories}}
@@ -36,12 +31,12 @@
                     </select>
                 </td>
             </tr>
-            <tr>
-                <td>
-                    <input type="file" name="file">
-                </td>
+            <tr><td colspan="2">
+                <input type="file" name="file">
+            </td>
             </tr>
             <tr>
+                <td></td>
                 <td>
                     <button type="submit">Add Item</button>
                 </td>
@@ -49,12 +44,7 @@
         </table>
 
     </form>
-{{/if}}
 
 {{#if message}}
-    <p>{{message}}</p>
+    {{>messageBar}}
 {{/if}}
-
-
-</body>
-</html>

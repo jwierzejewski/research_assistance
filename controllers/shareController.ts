@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const shareItems = async (req: Request, res: Response) =>{
+export const shareItems = async (req: Request, res: Response):Promise<any> =>{
     const { recipientUsername, selectedItems } = req.body;
     const username = (req.session as any).username
     console.log("selectedItems "+selectedItems)

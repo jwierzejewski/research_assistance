@@ -17,7 +17,7 @@ export const storage = multer.diskStorage({
 
 export const upload = multer({storage: storage});
 
-export const addItemFile = async (req: Request, res: Response, next: NextFunction) => {
+export const addItemFile = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
     console.log("addItemFile")
     try {
         if (!req.file) {
@@ -68,7 +68,7 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-export const getFile = async (req: Request, res: Response) => {
+export const getFile = async (req: Request, res: Response):Promise<any> => {
     try {
         const fileId = req.params.id;
         const file = await prisma.file.findUnique({

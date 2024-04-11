@@ -1,6 +1,6 @@
-import express, {Express, Request, Response} from "express";
+import express, {Express, NextFunction, Request, Response} from "express";
 import dotenv from "dotenv";
-import {login, signup} from "./controllers/userController";
+import {isAuthenticated, login, signup} from "./controllers/userController";
 import {addItemLink, getItems} from "./controllers/itemController";
 import {shareItems} from "./controllers/shareController";
 import errorHandler from "./utils/errorHandler";
@@ -8,11 +8,16 @@ import {addItemFile, getFile, upload} from "./controllers/fileController";
 import {getCategoryList,getCategories} from "./controllers/categoryController";
 import {engine} from 'express-handlebars';
 import session from "express-session";
+import * as passportStrategy from "passport-local";
+import passport from "passport";
+import { setupPassport } from "./utils/PassportAuth";
+import {IUser} from "./utils/IUser";
+import asyncHandler from "express-async-handler";
 
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
@@ -22,34 +27,47 @@ app.set('views', './views');
 
 app.use(session({
     secret: 'secret',
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: false
 }));
+app.use(passport.initialize());
+app.use(passport.authenticate('session'));
+
+setupPassport();
+
 
 
 
 app.get('/', (req, res) => {
-    res.render('home', {
-        layout: false,
-        loggedin: (req.session as any).loggedin,
-        username: (req.session as any).username,
+    console.log(req.user)
+    if(req.isAuthenticated()){
+        console.log(req.isAuthenticated(),req.user)
+        res.render('home', {
+            title: "Research assistance - Home",
+            username: (req.user as IUser).username,
+            message: (req.session as any).message,
+        });
+    }else {
+        console.log(req.isAuthenticated(),req.user)
+        res.render('login', {
+        title: "Research assistance - Login",
         message: (req.session as any).message,
     });
+    }
     delete (req.session as any).message;
 });
 
 app.get('/signup', (req, res) => {
     res.render('signup', {
-        layout: false,
         message: (req.session as any).message,
     });
     delete (req.session as any).message;
 });
 
-app.get('/browse',async (req, res) => {
+app.get('/browse',isAuthenticated,async (req, res) => {
     const categoryList = await getCategoryList()
     res.render('browse', {
-        layout: false,
+        title: "Research assistance - Browse",
         loggedin: (req.session as any).loggedin,
         username: (req.session as any).username,
         sharing: (req.session as any).sharing,
@@ -65,57 +83,55 @@ app.get('/browse',async (req, res) => {
     delete (req.session as any).message;
 });
 
-app.get('/addFile',async (req, res) => {
+app.get('/addFile',isAuthenticated,async (req, res) => {
     const categoryList = await getCategoryList()
     res.render('addFile', {
-        layout: false,
-        loggedin: (req.session as any).loggedin,
-        username: (req.session as any).username,
+        title: "Research assistance - Add File",
         categories: categoryList,
         message: (req.session as any).message,
     });
     delete (req.session as any).message;
 });
 
-app.get('/addLink',async (req, res) => {
+app.get('/addLink',isAuthenticated,async (req:Request, res) => {
     const categoryList = await getCategoryList()
     res.render('addLink', {
-        layout: false,
-        loggedin: (req.session as any).loggedin,
-        username: (req.session as any).username,
+        title: "Research assistance - Add Link",
         categories: categoryList,
         message: (req.session as any).message,
     });
     delete (req.session as any).message;
 });
 
-/*
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    // Tutaj można dodać logikę autentykacji, np. sprawdzanie w bazie danych
-    (req.session as any).loggedin = true;
-    (req.session as any).username = username;
-    res.redirect('/');
-});*/
-
-app.get('/initSharing', (req, res) => {
+app.get('/initSharing', isAuthenticated, (req, res) => {
     (req.session as any).sharing = true;
     res.redirect('/browse');
 });
-app.get('/logout', (req, res) => {
+app.get('/logout', isAuthenticated, (req, res) => {
     (req.session as any).destroy();
     res.redirect('/');
 });
 
+app.get('/loginfail', function(req, res){
+    (req.session as any).message = "Wrong login credential"
+    return res.redirect('/');
+});
 
-app.post("/login", errorHandler(login));
+
+app.post("/login",passport.authenticate('local',{
+    failureRedirect:"/loginfail"
+}),(async (req: Request, res: Response) => {
+    (req.session as any).message = "Logged in successfully"
+    return res.redirect('/');
+}));
 app.post("/signup", errorHandler(signup));
-app.post("/getItems", errorHandler(getItems));
-app.post("/shareItems", errorHandler(shareItems));
-app.post("/addItemFile", upload.single('file'), errorHandler(addItemFile));
-app.post("/addItemLink", errorHandler(addItemLink));
-app.get("/getFile/:id", errorHandler(getFile));
-app.get("/getCategories", getCategories);
+app.post("/getItems",isAuthenticated, asyncHandler(getItems));
+app.post("/shareItems",isAuthenticated, asyncHandler(shareItems));
+app.post("/addItemFile",isAuthenticated, asyncHandler(upload.single('file')), asyncHandler(addItemFile));
+app.post("/addItemLink",isAuthenticated, asyncHandler(addItemLink));
+
+app.get("/getFile/:id",isAuthenticated, asyncHandler(getFile));
+app.get("/getCategories",isAuthenticated, asyncHandler(getCategories));
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
