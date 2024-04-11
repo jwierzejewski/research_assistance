@@ -1,0 +1,33 @@
+<div class="menu-bar">
+    <a href="/">Home</a>
+    <a href="/logout">Log out</a>
+</div>
+<div class="item-container">
+    <form class="item-form" action="/getFromArxiv" method="post">
+        <table>
+            <tr>
+                <td><div class="label">title:</div></td>
+                <td><input type="text" name="title"/></td>
+            </tr>
+            <tr>
+                <td><div class="label">author:</div></td>
+                <td><input type="text" name="author"/></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit">Get</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    {{#if arxivItems}}
+        {{>itemArxivList}}
+    {{/if}}
+
+</div>
+
+{{#if message}}
+    {{>messageBar}}
+{{/if}}

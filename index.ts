@@ -1,10 +1,9 @@
 import express, {Express, NextFunction, Request, Response} from "express";
 import dotenv from "dotenv";
 import {isAuthenticated, login, signup} from "./controllers/userController";
-import {addItemLink, getItems} from "./controllers/itemController";
+import {getItems,addItemFile, getFile, upload} from "./controllers/itemController";
 import {shareItems} from "./controllers/shareController";
 import errorHandler from "./utils/errorHandler";
-import {addItemFile, getFile, upload} from "./controllers/fileController";
 import {getCategoryList,getCategories} from "./controllers/categoryController";
 import {engine} from 'express-handlebars';
 import session from "express-session";
@@ -13,6 +12,7 @@ import passport from "passport";
 import { setupPassport } from "./utils/PassportAuth";
 import {IUser} from "./utils/IUser";
 import asyncHandler from "express-async-handler";
+import {getFromArxiv} from "./controllers/arxivController";
 
 dotenv.config();
 
@@ -68,8 +68,6 @@ app.get('/browse',isAuthenticated,async (req, res) => {
     const categoryList = await getCategoryList()
     res.render('browse', {
         title: "Research assistance - Browse",
-        loggedin: (req.session as any).loggedin,
-        username: (req.session as any).username,
         sharing: (req.session as any).sharing,
         categories: categoryList,
         message: (req.session as any).message,
@@ -93,15 +91,14 @@ app.get('/addFile',isAuthenticated,async (req, res) => {
     delete (req.session as any).message;
 });
 
-app.get('/addLink',isAuthenticated,async (req:Request, res) => {
-    const categoryList = await getCategoryList()
-    res.render('addLink', {
-        title: "Research assistance - Add Link",
-        categories: categoryList,
+app.get('/getFromArxiv',isAuthenticated,asyncHandler(async (req:Request, res,next) => {
+    res.render('arxiv', {
+        title: "Research assistance - Get From Arxiv",
         message: (req.session as any).message,
+        arxivItems: (req.session as any).arxivItems,
     });
     delete (req.session as any).message;
-});
+}));
 
 app.get('/initSharing', isAuthenticated, (req, res) => {
     (req.session as any).sharing = true;
@@ -126,12 +123,17 @@ app.post("/login",passport.authenticate('local',{
 }));
 app.post("/signup", errorHandler(signup));
 app.post("/getItems",isAuthenticated, asyncHandler(getItems));
+app.post("/getFromArxiv",isAuthenticated, asyncHandler(getFromArxiv));
 app.post("/shareItems",isAuthenticated, asyncHandler(shareItems));
 app.post("/addItemFile",isAuthenticated, asyncHandler(upload.single('file')), asyncHandler(addItemFile));
-app.post("/addItemLink",isAuthenticated, asyncHandler(addItemLink));
-
 app.get("/getFile/:id",isAuthenticated, asyncHandler(getFile));
 app.get("/getCategories",isAuthenticated, asyncHandler(getCategories));
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    (req.session as any).message = "Something went wrong"
+    return res.redirect('/');
+});
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
