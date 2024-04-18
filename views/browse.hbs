@@ -1,51 +1,22 @@
-<div class="menu-bar">
-        <a href="/">Home</a>
-        <a href="/user/logout">Log out</a>
-</div>
-    <div class="item-container">
+{{>menuBarItems}}
+<div class="item-container">
     <form class="item-form" action="/resources/getItems" method="post">
         <table>
-            <tr>
-                <td><div class="label">title:</div></td>
-                <td><input type="text" name="title"/></td>
-            </tr>
-            <tr>
-                <td><div class="label">author:</div></td>
-                <td><input type="text" name="author"/></td>
-            </tr>
-            <tr>
-                <td><div class="label">year:</div></td>
-                <td><input type="number" name="year" min="1495" max="2024"/></td>
-            </tr>
-            <tr>
-                <td><div class="label">genre:</div></td>
-                <td> <input type="text" name="genre"/></td>
-            </tr>
-            <tr>
-                <td><div class="label">category:</div></td>
-                <td>
-                    <select name="categoryId">
-                    <option value="">all</option>
-                    {{#each categories}}
-                        <option value={{id}}>{{name}}</option>
-                    {{/each}}
-                </select>
-                </td>
-            </tr>
+            {{>itemInfoInputs}}
             <tr>
                 <td></td>
                 <td>
                     <button type="submit">Search</button>
                 </td>
             </tr>
-            </table>
+        </table>
     </form>
 
-{{#if items}}
-   {{>itemList}}
-{{else}}
-    <a class="small-button" href="/resources/getFromArxiv">Search in arxiv</a>
-{{/if}}
+    {{#if items}}
+        {{>itemList}}
+    {{else}}
+        <a class="small-button" href="/resources/getFromArxiv">Search in arxiv</a>
+    {{/if}}
 </div>
 
 {{#if message}}

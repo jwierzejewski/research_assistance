@@ -1,14 +1,14 @@
 <div class="menu-bar">
     <div>Register</div>
-<a href="/">Go to Log in Page</a>
+    <a href="/">Go to Log in Page</a>
 </div>
-    <div class="login-container">
+<div class="login-container">
     <form class="login-form" action="/user/signup" method="post">
-        <input type="text" name="username" placeholder="Username">
-        <input type="text" name="firstname" placeholder="Firstname">
-        <input type="text" name="lastname" placeholder="Lastname">
-        <input type="password" name="password" placeholder="Password">
+        <input type="text" name="username" placeholder="Username" value={{formData.username}}>
+        <input type="text" name="firstname" placeholder="Firstname" value={{formData.firstname}}>
+        <input type="text" name="lastname" placeholder="Lastname" value={{formData.lastname}}>
+        <input type="password" name="password" placeholder="Password" value={{formData.password}}>
         <button type="submit">Register</button>
     </form>
-    </div>
+</div>
 {{>messageBar}}

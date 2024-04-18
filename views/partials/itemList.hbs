@@ -1,44 +1,32 @@
-<div class = "item-list">
+<div class="item-list">
     <p>Items</p>
-{{#if sharing}}
+    {{#if sharing}}
         <form action="/resources/shareItems" method="post">
             {{#each items}}
                 <div class="item">
-                    <div>Title: {{title}}</div>
-                    <div>Author: {{author}}</div>
-                    <div>Year: {{year}}</div>
-                    <div>Genre: {{genre}}</div>
-                    <div>Category: {{category.name}}</div>
-                    <div>Owner username: {{ownerUsername}}</div>
+                    {{>itemInfo}}
                     {{#if (eq ownerUsername ../username)}}
                         <input type="checkbox" name="selectedItems" value={{id}}>
                     {{/if}}
                 </div>
             {{/each}}
             <div>Recipient username:<input type="text" name="recipientUsername">
-                <button type="submit">Share</button></div>
+                <button type="submit">Share</button>
+            </div>
         </form>
-{{else}}
-    {{#each items}}
+    {{else}}
+        {{#each items}}
             <div class="item">
-                <div>Title: {{title}}</div>
-                <div>Author: {{author}}</div>
-                <div>Year: {{year}}</div>
-                <div>Genre: {{genre}}</div>
-                <div>Category: {{category.name}}</div>
-                <div>Owner username: {{ownerUsername}}</div>
-                {{#if link }}
-                    <a href={{link}}>{{link}}</a>
-                {{/if}}
+                {{>itemInfo}}
                 {{#if file}}
                     <form action="/resources/getFile/{{file.id}}" method="get">
                         <button class="small-button" type="submit">Download file</button>
                     </form>
                 {{/if}}
             </div>
-    {{/each}}
+        {{/each}}
         <form action="/resources/initSharing" method="get">
             <button class="small-button" type="submit">Share Items</button>
         </form>
-{{/if}}
+    {{/if}}
 </div>

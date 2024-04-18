@@ -1,46 +1,65 @@
-import {NextFunction, Request, Response} from "express";
-import { parseString } from 'xml2js';
-import {IMessage} from "../utils/IMessage";
+import {Request, Response} from "express";
+import {parseString} from 'xml2js';
+import {validationErrorHandler} from "../utils/errorHandler";
+import {redirectHandler} from "../utils/redirectHandler";
+import {IMySession} from "../utils/IMySession";
 
-export const getFromArxiv = async (req: Request, res: Response, next: NextFunction) => {
-    const {title, author} = req.body;
-
+function createQueryUrl(title: string, author: string) {
     let searchQuery = ""
-    if(title !== undefined && title != "")
-    {
-        searchQuery+=title;
+    if (title !== undefined && title != "") {
+        searchQuery += title;
     }
-    if(author !==undefined && author !="")
-    {
-        if(searchQuery != "")
-        {
-            searchQuery+="+AND+";
+    if (author !== undefined && author != "") {
+        if (searchQuery != "") {
+            searchQuery += "+AND+";
         }
-        searchQuery+=author;
+        searchQuery += author;
     }
     let url = "http://export.arxiv.org/api/query?search_query="
-    url+=searchQuery
+    url += searchQuery
+    return url;
+}
 
+function parseXMLData(body: string) {
+    let data;
+    parseString(body, (err, result) => {
+        if (err) {
+            throw err;
+        }
+        data = result
+    });
+    return data
+}
+
+export const getFromArxiv = async (req: Request, res: Response) => {
+    validationErrorHandler(req, res, "/resources/getFromArxiv");
+    const {title, author} = req.body;
+
+    let url = createQueryUrl(title, author);
 
     const response = await fetch(url);
     var body = await response.text()
 
-    let data;
+    const data: any = parseXMLData(body);
+    console.log(data)
 
-    parseString(body, (err, result) => {
-        if (err) {
-            console.error('Error parsing XML:', err);
-        } else {
-            data=result;
-        }
-    });
-
-    if (data!.feed!.entry!.length>0) {
-        (req.session as any).arxivItems = data!.feed!.entry
+    if (data!.feed!.entry!.length > 0) {
+        (req.session as IMySession).arxivItems = data!.feed!.entry
         return res.redirect('/resources/getFromArxiv');
     } else {
-        const msg: IMessage = {text: 'Documents not found', isError: true};
-        (req.session as any).message = msg;
-        return res.redirect('/resources/getFromArxiv');
+        return redirectHandler(req, res, '/resources/getFromArxiv',
+            {text: 'Documents not found', isError: true});
     }
 };
+
+export const browseInArxivPage = async (req: Request, res: Response) => {
+    res.render('arxiv', {
+        title: "Research assistance - Get From Arxiv",
+        message: (req.session as IMySession).message,
+        arxivItems: (req.session as IMySession).arxivItems,
+        formData: (req.session as IMySession).formData
+    });
+    delete (req.session as IMySession).message;
+    delete (req.session as IMySession).formData;
+    delete (req.session as IMySession).arxivItems;
+}

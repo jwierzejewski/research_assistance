@@ -1,16 +1,21 @@
 import {NextFunction, Request, Response} from "express";
-import {PrismaClient, Prisma} from '@prisma/client';
+import {Prisma, PrismaClient} from '@prisma/client';
 import multer from "multer";
 import fs from "fs";
 import {IUser} from "../utils/IUser";
 import {IMessage} from "../utils/IMessage";
+import {validationErrorHandler} from "../utils/errorHandler";
+import {getCategoryList} from "./categoryController";
+import {eq} from "../utils/helpers";
+import {redirectHandler} from "../utils/redirectHandler";
+import {getFromArxiv} from "./arxivController";
+import {IMySession} from "../utils/IMySession";
 
 const prisma = new PrismaClient();
 export const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
+    }, filename: (req, file, cb) => {
         const fileName = Date.now() + '-' + file.originalname
         cb(null, fileName);
     },
@@ -18,13 +23,24 @@ export const storage = multer.diskStorage({
 
 export const upload = multer({storage: storage});
 
-export const addItemFile = async (req: Request, res: Response, next: NextFunction):Promise<any> => {
-    console.log("addItemFile")
+function undoAddingFile(req: Request) {
+    if (req.file) fs.unlink(req.file.path, (err) => {
+        if (err) {
+            console.log('Error during file removing:', err);
+        } else {
+            console.log('File adding has been withdrawn');
+        }
+    });
+}
+
+export const addItemFile = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    validationErrorHandler(req, res, "/resources/addItem");
     try {
         if (!req.file) {
-            return res.status(400).send('File not found.');
+            return redirectHandler(req, res, '/resources/addItem',
+                {text: 'Loading file failure', isError: true}, true);
         }
-        const {title, categoryId, author, year, genre, link} = req.body;
+        const {title, categoryId, author, year, genre} = req.body;
         const username = (req.user as IUser).username
         const newItem = await prisma.item.create({
             data: {
@@ -37,11 +53,10 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
             },
         });
         if (!newItem) {
-            const msg: IMessage = {text: 'Item not added"', isError: true};
-            (req.session as any).message = msg;
-            return res.redirect('/resources/addFile');
+            undoAddingFile(req);
+            return redirectHandler(req, res, '/resources/addItem',
+                {text: 'Item not added', isError: true}, true);
         }
-
         const {originalname, mimetype, filename, path} = req.file;
 
         await prisma.file.create({
@@ -53,24 +68,16 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
                 itemId: newItem.id
             },
         });
-        const msg: IMessage = {text: 'Item added successfully', isError: false};
-        (req.session as any).message = msg;
-        return res.redirect('/');
+        return redirectHandler(req, res, '/',
+            {text: 'Item added successfully', isError: false});
+
     } catch (error) {
-        console.log("error")
-        if (req.file)
-            fs.unlink(req.file.path, (err) => {
-                if (err) {
-                    console.log('Error during file removing:', err);
-                } else {
-                    console.log('File adding has been withdrawn');
-                }
-            });
+        undoAddingFile(req);
         throw error
     }
 }
 
-export const getFile = async (req: Request, res: Response):Promise<any> => {
+export const getFile = async (req: Request, res: Response): Promise<any> => {
     try {
         const fileId = req.params.id;
         const file = await prisma.file.findUnique({
@@ -80,7 +87,8 @@ export const getFile = async (req: Request, res: Response):Promise<any> => {
         });
 
         if (!file) {
-            return res.status(404).send('File not found');
+            return redirectHandler(req, res, '/resources/browse',
+                {text: 'File not found', isError: true}, true);
         }
         console.log(file.filePath)
         const fileData = fs.createReadStream(file.filePath)
@@ -89,65 +97,103 @@ export const getFile = async (req: Request, res: Response):Promise<any> => {
         res.setHeader('Content-Type', file.mimeType);
         fileData.pipe(res);
     } catch (error) {
-        res.status(500).send('Error during file loading');
+        return redirectHandler(req, res, '/resources/browse',
+            {text: 'Downloading file failure', isError: true}, true);
     }
 }
-export const getItems = async (req: Request, res: Response) => {
-    const {title, categoryId, author, year, genre} = req.body;
-    const username = (req.user as IUser).username
+
+function generateWhere(title: string, categoryId: string, author: string, year: string, genre: string, username: string) {
     let where: Prisma.ItemWhereInput = {};
-    if (title !== undefined && title!="") {
+    if (title !== undefined && title != "") {
         where.title = {
             contains: title
         };
     }
-    console.log("categoryId "+categoryId)
-    if (categoryId !== undefined && categoryId!="") {
+    if (categoryId !== undefined && categoryId != "") {
         where.categoryId = parseInt(categoryId)
     }
 
-    if (author !== undefined && author!="") {
+    if (author !== undefined && author != "") {
         where.author = {
             contains: author
         };
     }
 
-    if (year !== undefined && year!="") {
+    if (year !== undefined && year != "") {
         where.year = parseInt(year);
     }
 
-    if (genre !== undefined && genre!="") {
+    if (genre !== undefined && genre != "") {
         where.genre = {
             contains: genre
         };
     }
-    where.OR = [
-    {ownerUsername: username},
-    {sharedWith: {some: {username: username}}}
-    ]
+    where.OR = [{ownerUsername: username}, {sharedWith: {some: {username: username}}}]
+    return where;
+}
+
+export const getItems = async (req: Request, res: Response) => {
+    validationErrorHandler(req, res, "/resources/browse");
+    const {title, categoryId, author, year, genre} = req.body;
+    (req.session as IMySession).formData = req.body;
+    const username = (req.user as IUser).username
+    let where = generateWhere(title, categoryId, author, year, genre, username);
 
     const Items = await prisma.item.findMany({
-        where: where,
-        include: {
+        where: where, include: {
             file: {
                 select: {
-                    id: true,
-                    originalName: true,
-                    mimeType: true
+                    id: true, originalName: true, mimeType: true
                 },
             }, category: true
         },
     })
-    console.log(Items)
+
     if (Items.length > 0) {
-        (req.session as any).items = Items
-        return res.redirect('/resources/browse');
+        (req.session as IMySession).items = Items;
+        return redirectHandler(req, res, '/resources/browse',
+            undefined, true);
+
     } else {
-        const msg: IMessage = {text: 'Items not found', isError: true};
-        (req.session as any).message = msg;
-        console.log("pusto")
-        console.log(Items)
-        delete (req.session as any).items
-        return res.redirect('/resources/browse');
+        const message: IMessage = {text: "Items not found - searching in arxiv", isError: true};
+        (req.session as IMySession).message = message;
+        return getFromArxiv(req, res).catch(() => {
+            return redirectHandler(req, res, '/resources/browse',
+                {text: 'Items not found', isError: true}, true);
+        })
     }
 };
+
+export const browseItemsPage = async (req: Request, res: Response) => {
+    console.log("message", (req.session as IMySession).message)
+    const categoryList = await getCategoryList()
+    res.render('browse', {
+        username: (req.user as IUser).username,
+        title: "Research assistance - Browse",
+        sharing: (req.session as IMySession).sharing,
+        categories: categoryList,
+        message: (req.session as IMySession).message,
+        items: (req.session as IMySession).items,
+        formData: (req.session as IMySession).formData,
+        helpers: {
+            eq
+        }
+    });
+    delete (req.session as IMySession).message;
+    delete (req.session as IMySession).formData;
+}
+
+export const addItemPage = async (req: Request, res: Response) => {
+    const categoryList = await getCategoryList()
+    res.render('addItem', {
+        title: "Research assistance - Add Item",
+        categories: categoryList,
+        message: (req.session as IMySession).message,
+        formData: (req.session as IMySession).formData,
+        helpers: {
+            eq
+        }
+    });
+    delete (req.session as IMySession).message;
+    delete (req.session as IMySession).formData;
+}

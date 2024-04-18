@@ -1,0 +1,208 @@
+body{
+    margin: 0;
+    text-align: center;
+}
+.menu-bar {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: space-around;
+    top: 0;
+    width: 100%;
+    position: fixed;
+
+}
+
+.menu-bar a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+    display: inline-block;
+}
+
+.menu-bar a:hover {
+    color: #999999;
+    text-decoration: none;
+    margin: 0 10px;
+    display: inline-block;
+}
+
+/* Login form styles */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    padding: 50px;
+}
+
+.login-form {
+    background-color: #e0f4ff;
+    width: 300px;
+    padding: 50px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"]{
+    background-color: rgba(100, 100, 100, 0.1);
+    width: 92%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+.login-form button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.login-form button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.login-form button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Browse/add form styles */
+.item-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 50px 20px 50px 20px;
+}
+
+.item-form {
+    width: 300px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.item-form input[type="text"],
+.item-form input[type="number"],
+.item-form input[type="file"],
+.item-form select,
+.item-form input[type="password"]{
+    width: 92%;
+    padding: 4px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+tr .label{
+    font-size: 14px;
+    padding-bottom: 7px;
+}
+.item-form button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.item-form button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.item-form button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.item-list {
+    width: 300px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.item{
+    border: 1px solid #ccc;
+    border-radius:20px;
+    padding: 20px 30px 20px 30px;
+    margin-bottom: 20px;
+}
+.item div{
+    margin-bottom: 3px;
+}
+
+.small-button{
+    padding: 3px 6px 3px 6px;
+    background-color:transparent;
+    color: #007bff;
+    border: 2px solid #007bff;
+    border-radius:20px;
+    cursor: pointer;
+    text-decoration: none;
+}
+.small-button:hover{
+    background-color: rgba(100, 100, 100, 0.1);
+    color: #004aff;
+    border-color: #004aff;
+}
+
+
+.message-bar, .error-message-bar {
+    padding: 0;
+    font-size:16px;
+    background-color: #ff0000;
+    color: #fff;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.message-bar {
+    background-color: #00ff00;
+}
+
+.error-message-bar {
+    background-color: #ff0000;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.button-container {
+    margin-top: 10vh;
+    margin-bottom: 10vh;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+.button {
+    font-size: larger;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    margin: 10px auto;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.button:hover {
+    background-color: #0056b3;
+}

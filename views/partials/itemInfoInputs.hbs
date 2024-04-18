@@ -1,0 +1,37 @@
+<tr>
+    <td>
+        <div class="label">title:</div>
+    </td>
+    <td><input type="text" name="title" value="{{formData.title}}"/></td>
+</tr>
+<tr>
+    <td>
+        <div class="label">author:</div>
+    </td>
+    <td><input type="text" name="author" value="{{formData.author}}"/></td>
+</tr>
+<tr>
+    <td>
+        <div class="label">year:</div>
+    </td>
+    <td><input type="number" name="year" min="1500" max="2024" value="{{formData.year}}"/></td>
+</tr>
+<tr>
+    <td>
+        <div class="label">genre:</div>
+    </td>
+    <td><input type="text" name="genre" value="{{formData.genre}}"/></td>
+</tr>
+<tr>
+    <td>
+        <div class="label">category:</div>
+    </td>
+    <td>
+        <select name="categoryId">
+            <option value="">all</option>
+            {{#each categories}}
+                <option value={{id}} {{#if (eq ../formData.categoryId id)}} selected {{/if}}>{{name}}</option>
+            {{/each}}
+        </select>
+    </td>
+</tr>

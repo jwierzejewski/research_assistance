@@ -1,0 +1,23 @@
+{{>menuBarItems}}
+<div class="item-container">
+    <form class="item-form" action="/resources/addItem" method="post" enctype="multipart/form-data">
+        <table>
+            {{>itemInfoInputs}}
+            <tr>
+                <td colspan="2">
+                    <input type="file" name="file">
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit">Add Item</button>
+                </td>
+            </tr>
+        </table>
+
+    </form>
+
+{{#if message}}
+    {{>messageBar}}
+{{/if}}

@@ -1,16 +1,20 @@
-import {Request, Response, NextFunction} from 'express';
-import {Prisma} from "@prisma/client";
+import {Request, Response} from 'express';
+import {validationResult} from "express-validator";
+import {IMySession} from "./IMySession";
 
-const errorHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next))
-        .catch((err: Error) => {
-            if (err instanceof Prisma.PrismaClientKnownRequestError) {
-                console.log(err.code, err.message)
-            } else {
-                console.log(err.message)
-            }
-            return res.status(500).json({error: 'Server error'});
+
+export const validationErrorHandler = (req: Request, res: Response, redirectUrl: string) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        (req.session as IMySession).formData = req.body
+        var errorMsg = "";
+        errors.array().forEach(error => {
+            console.log(error.msg);
+            errorMsg += error.msg + "\n";
         });
-};
 
-export default errorHandler;
+        const msg = {text: errorMsg, isError: true};
+        (req.session as IMySession).message = msg;
+        return res.redirect(redirectUrl);
+    }
+};

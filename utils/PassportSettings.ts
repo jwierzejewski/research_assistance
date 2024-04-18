@@ -5,8 +5,7 @@ import passport from "passport";
 
 const prisma = new PrismaClient();
 
-export const setupPassport = ()=>
-{
+export const setupPassport = () => {
     passport.serializeUser((user: any, done) => {
         done(null, user.username);
     });
@@ -22,25 +21,23 @@ export const setupPassport = ()=>
     });
 
 // Local strategy for Passport
-    passport.use(new passportStrategy.Strategy(
-        {usernameField: "username"}, async (username, password, done) => {
-            try {
-                if (!username) {
-                    return done(null, false)
-                }
-                const user = await prisma.user.findUnique({
-                    where: {
-                        username: username
-                    }
-                });
-                if (user && user.username === username && await bcrypt.compare(password, user.password)) {
-                    return done(null, user);
-                } else {
-                    return done(null, false);
-                }
-            } catch (e) {
-                return done(e);
+    passport.use(new passportStrategy.Strategy({usernameField: "username"}, async (username, password, done) => {
+        try {
+            if (!username) {
+                return done(null, false)
             }
+            const user = await prisma.user.findUnique({
+                where: {
+                    username: username
+                }
+            });
+            if (user && user.username === username && await bcrypt.compare(password, user.password)) {
+                return done(null, user);
+            } else {
+                return done(null, false);
+            }
+        } catch (e) {
+            return done(e);
         }
-    ));
+    }));
 }

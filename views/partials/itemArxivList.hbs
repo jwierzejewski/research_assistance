@@ -1,16 +1,16 @@
-<div class = "item-list">
+<div class="item-list">
     <p>Items</p>
-            {{#each arxivItems}}
-                <div class="item">
-                    <div>Title: {{title}}</div>
-                    <div>
-                        Authors:
-                    {{#each author}}
-                        {{name}}
-                    {{/each}}
-                    </div>
-                    <div>Published data: {{published}}</div>
-                    <div><a href="{{id}}" class="small-button">Go to source</a></div>
-                </div>
-            {{/each}}
+    {{#each arxivItems}}
+        <div class="item">
+            <div>Title: {{title}}</div>
+            <div>
+                Authors:
+                {{#each author}}
+                    {{name}}
+                {{/each}}
+            </div>
+            <div>Published data: {{published}}</div>
+            <div><a href="{{id}}" class="small-button">Go to source</a></div>
+        </div>
+    {{/each}}
 </div>

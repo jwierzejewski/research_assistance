@@ -26,7 +26,6 @@ model Item {
   author String
   year Int
   genre String
-  link String?
   ownerUsername String
   file File?
   sharedWith User[]
