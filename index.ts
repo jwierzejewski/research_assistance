@@ -13,7 +13,7 @@ import {IMySession} from "./utils/IMySession";
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
