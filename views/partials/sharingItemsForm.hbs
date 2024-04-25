@@ -1,0 +1,15 @@
+<form action="/resources/shareItems" method="post">
+    <p>Select items (checkboxes) to share and specify recipient user</p>
+    <div>Recipient username:<input type="text" name="recipientUsername">
+        <button type="submit">Share</button>
+    </div>
+    <p>Items</p>
+    {{#each items}}
+        <div class="item">
+            {{>itemInfo}}
+            {{#if (and (not public) (eq ownerUsername ../username))}}
+                <div>Share item: <input type="checkbox" name="selectedItems" value={{id}}></div>
+            {{/if}}
+        </div>
+    {{/each}}
+</form>

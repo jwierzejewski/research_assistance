@@ -9,6 +9,7 @@ import {userRouter} from "./routers/userRouter";
 import {resourcesRouter} from "./routers/resourceRouter"
 import {IMessage} from "./utils/IMessage";
 import {IMySession} from "./utils/IMySession";
+import {redirectHandler} from "./utils/redirectHandler";
 
 dotenv.config();
 
@@ -36,14 +37,15 @@ app.use('/resources', resourcesRouter)
 app.get('/', (req, res) => {
     console.log(req.user)
     if (req.isAuthenticated()) {
-        res.render('home', {
+        res.render('homeLogged', {
             title: "Research assistance - Home",
             username: (req.user as IUser).username,
             message: (req.session as IMySession).message,
         });
     } else {
-        res.render('login', {
-            title: "Research assistance - Login", message: (req.session as IMySession).message,
+        res.render('home', {
+            title: "Research assistance - Home",
+            message: (req.session as IMySession).message,
         });
     }
     delete (req.session as IMySession).message;
@@ -52,9 +54,8 @@ app.get('/', (req, res) => {
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
-    const msg: IMessage = {text: 'Something went wrong', isError: true};
-    (req.session as IMySession).message = msg;
-    return res.redirect('/');
+    return redirectHandler(req, res, '/',
+        {text: 'Something went wrong', isError: true});
 });
 
 app.listen(port, () => {

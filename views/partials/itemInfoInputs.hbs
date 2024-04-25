@@ -22,16 +22,3 @@
     </td>
     <td><input type="text" name="genre" value="{{formData.genre}}"/></td>
 </tr>
-<tr>
-    <td>
-        <div class="label">category:</div>
-    </td>
-    <td>
-        <select name="categoryId">
-            <option value="">all</option>
-            {{#each categories}}
-                <option value={{id}} {{#if (eq ../formData.categoryId id)}} selected {{/if}}>{{name}}</option>
-            {{/each}}
-        </select>
-    </td>
-</tr>

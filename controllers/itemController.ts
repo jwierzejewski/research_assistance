@@ -6,7 +6,7 @@ import {IUser} from "../utils/IUser";
 import {IMessage} from "../utils/IMessage";
 import {validationErrorHandler} from "../utils/errorHandler";
 import {getCategoryList} from "./categoryController";
-import {eq} from "../utils/helpers";
+import {and, eq, not} from "../utils/helpers";
 import {redirectHandler} from "../utils/redirectHandler";
 import {getFromArxiv} from "./arxivController";
 import {IMySession} from "../utils/IMySession";
@@ -40,8 +40,12 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
             return redirectHandler(req, res, '/resources/addItem',
                 {text: 'Loading file failure', isError: true}, true);
         }
-        const {title, categoryId, author, year, genre} = req.body;
+        const {title, categoryId, author, year, genre, status} = req.body;
         const username = (req.user as IUser).username
+        let publicItem = true
+        if (status == "private")
+            publicItem = false
+
         const newItem = await prisma.item.create({
             data: {
                 title: title,
@@ -49,7 +53,8 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
                 author: author,
                 year: parseInt(year),
                 genre: genre,
-                ownerUsername: username
+                ownerUsername: username,
+                public: publicItem
             },
         });
         if (!newItem) {
@@ -102,7 +107,7 @@ export const getFile = async (req: Request, res: Response): Promise<any> => {
     }
 }
 
-function generateWhere(title: string, categoryId: string, author: string, year: string, genre: string, username: string) {
+function generateWhere(title: string, categoryId: string, author: string, year: string, genre: string, itemsStatus:string,username: string|undefined = undefined) {
     let where: Prisma.ItemWhereInput = {};
     if (title !== undefined && title != "") {
         where.title = {
@@ -128,16 +133,50 @@ function generateWhere(title: string, categoryId: string, author: string, year: 
             contains: genre
         };
     }
-    where.OR = [{ownerUsername: username}, {sharedWith: {some: {username: username}}}]
+    if(itemsStatus == "all") {
+        where.OR = [
+            {public: true},
+            {AND: [{ownerUsername: username}, {public: false}]},
+            {sharedWith: {some: {username: username}}}
+        ];
+    }else if(itemsStatus == "public")
+    {
+        where.public = true
+    }
+    else if(itemsStatus == "private")
+    {
+        where.OR = [
+            {AND: [{ownerUsername: username}, {public: false}]},
+            {sharedWith: {some: {username: username}}}
+        ];
+    }
+    else if(itemsStatus == "own")
+    {
+       where.ownerUsername = username
+    }
+    else if (itemsStatus == "own private")
+    {
+        where.AND = [{ownerUsername: username}, {public: false}]
+    }
     return where;
 }
 
 export const getItems = async (req: Request, res: Response) => {
     validationErrorHandler(req, res, "/resources/browse");
-    const {title, categoryId, author, year, genre} = req.body;
+    const {title, categoryId, author, year, genre, itemsStatus} = req.body;
     (req.session as IMySession).formData = req.body;
-    const username = (req.user as IUser).username
-    let where = generateWhere(title, categoryId, author, year, genre, username);
+    let where;
+    if(req.isAuthenticated()){
+        const username = (req.user as IUser).username
+        where = generateWhere(title, categoryId, author, year, genre, itemsStatus, username);
+    }
+    else
+    {
+        let itemsStatus = "public"
+        where = generateWhere(title, categoryId, author, year, genre, itemsStatus);
+    }
+
+
 
     const Items = await prisma.item.findMany({
         where: where, include: {
@@ -165,18 +204,26 @@ export const getItems = async (req: Request, res: Response) => {
 };
 
 export const browseItemsPage = async (req: Request, res: Response) => {
-    console.log("message", (req.session as IMySession).message)
     const categoryList = await getCategoryList()
+    let items = (req.session as IMySession).items
+    let sharingEnabled = false
+    let username = req.isAuthenticated()?(req.user as IUser).username:null
+    if (username && items && items.some(item => !item.public && item.ownerUsername === username))
+        sharingEnabled = true;
     res.render('browse', {
-        username: (req.user as IUser).username,
+        loggedIn: req.isAuthenticated(),
+        username: req.isAuthenticated()?(req.user as IUser).username:null,
         title: "Research assistance - Browse",
+        sharingEnabled: sharingEnabled,
         sharing: (req.session as IMySession).sharing,
         categories: categoryList,
         message: (req.session as IMySession).message,
         items: (req.session as IMySession).items,
         formData: (req.session as IMySession).formData,
         helpers: {
-            eq
+            eq,
+            not,
+            and,
         }
     });
     delete (req.session as IMySession).message;
@@ -187,11 +234,14 @@ export const addItemPage = async (req: Request, res: Response) => {
     const categoryList = await getCategoryList()
     res.render('addItem', {
         title: "Research assistance - Add Item",
+        loggedIn: req.isAuthenticated(),
         categories: categoryList,
         message: (req.session as IMySession).message,
         formData: (req.session as IMySession).formData,
         helpers: {
-            eq
+            eq,
+            not,
+            and
         }
     });
     delete (req.session as IMySession).message;

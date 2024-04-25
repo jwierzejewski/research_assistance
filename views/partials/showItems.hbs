@@ -1,0 +1,10 @@
+{{#each items}}
+    <div class="item">
+        {{>itemInfo}}
+        {{#if file}}
+            <form action="/resources/getFile/{{file.id}}" method="get">
+                <button class="small-button" type="submit">Download file</button>
+            </form>
+        {{/if}}
+    </div>
+{{/each}}

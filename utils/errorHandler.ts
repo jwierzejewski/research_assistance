@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import {validationResult} from "express-validator";
 import {IMySession} from "./IMySession";
+import {redirectHandler} from "./redirectHandler";
 
 
 export const validationErrorHandler = (req: Request, res: Response, redirectUrl: string) => {
@@ -13,8 +14,7 @@ export const validationErrorHandler = (req: Request, res: Response, redirectUrl:
             errorMsg += error.msg + "\n";
         });
 
-        const msg = {text: errorMsg, isError: true};
-        (req.session as IMySession).message = msg;
-        return res.redirect(redirectUrl);
+        return redirectHandler(req, res, redirectUrl,
+            {text: errorMsg, isError: true});
     }
 };

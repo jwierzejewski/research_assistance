@@ -56,6 +56,7 @@ export const browseInArxivPage = async (req: Request, res: Response) => {
     res.render('arxiv', {
         title: "Research assistance - Get From Arxiv",
         message: (req.session as IMySession).message,
+        loggedIn: req.isAuthenticated(),
         arxivItems: (req.session as IMySession).arxivItems,
         formData: (req.session as IMySession).formData
     });

@@ -86,7 +86,6 @@ body{
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    margin-bottom: 20px;
 }
 
 .item-form input[type="text"],
@@ -123,7 +122,7 @@ tr .label{
 
 .item-list {
     width: 300px;
-    padding: 20px;
+    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -134,7 +133,7 @@ tr .label{
     border: 1px solid #ccc;
     border-radius:20px;
     padding: 20px 30px 20px 30px;
-    margin-bottom: 20px;
+    margin: 20px 0px 20px 0px;
 }
 .item div{
     margin-bottom: 3px;

@@ -4,11 +4,8 @@ exports.signup = exports.login = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const login = async (req, res) => {
-    console.log("login");
     const { email, password } = req.body;
-    console.log(req.body);
     if (email !== undefined && password !== undefined) {
-        console.log(email);
         const user = await prisma.user.findUnique({
             where: {
                 email: email

@@ -28,6 +28,7 @@ model Item {
   genre String
   ownerUsername String
   file File?
+  public Boolean @default(false)
   sharedWith User[]
 
   @@unique([author,title,year,ownerUsername])
