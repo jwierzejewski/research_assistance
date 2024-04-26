@@ -3,8 +3,12 @@ import {PrismaClient} from '@prisma/client';
 import {IUser} from "../utils/IUser";
 import {redirectHandler} from "../utils/redirectHandler";
 import {IMySession} from "../utils/IMySession";
+import UserRepository from "../services/userRepository";
+import ItemRepository from "../services/itemRepository";
+import prisma from "../prisma/prismaClient";
 
-const prisma = new PrismaClient();
+const userRepository = new UserRepository(prisma)
+const itemRepository = new ItemRepository(prisma)
 
 export const initSharing = async (req: Request, res: Response) => {
     (req.session as IMySession).sharing = true;
@@ -14,26 +18,13 @@ export const initSharing = async (req: Request, res: Response) => {
 export const shareItems = async (req: Request, res: Response): Promise<any> => {
     const {recipientUsername, selectedItems} = req.body;
     const username = (req.user as IUser).username
-    console.log("selectedItems " + selectedItems)
     if (username === undefined || recipientUsername === undefined || selectedItems.length < 0) {
         return res.status(400).json({error: 'Bad request: Missing required fields'});
     }
-    const user = await prisma.user.findUnique({
-        where: {
-            username: recipientUsername
-        }
-    })
+    const user = await userRepository.getUser(username)
     if (user) {
         for (const itemId of selectedItems) {
-            console.log(itemId + " " + user.id)
-            const share = await prisma.item.update({
-                where: {
-                    id: parseInt(itemId)
-                }, data: {
-                    sharedWith: {connect: {id: user.id}}
-                }
-            });
-            if (!share) {
+            if (! itemRepository.shareItem(parseInt(itemId),user.id)) {
                 return redirectHandler(req, res, '/resources/browse',
                     {text: 'Sharing failed', isError: true});
             }

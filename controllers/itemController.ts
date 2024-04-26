@@ -10,8 +10,10 @@ import {and, eq, not} from "../utils/helpers";
 import {redirectHandler} from "../utils/redirectHandler";
 import {getFromArxiv} from "./arxivController";
 import {IMySession} from "../utils/IMySession";
+import ItemRepository from "../services/itemRepository";
+import prisma from "../prisma/prismaClient";
 
-const prisma = new PrismaClient();
+const itemRepository = new ItemRepository(prisma);
 export const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
@@ -41,40 +43,21 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
                 {text: 'Loading file failure', isError: true}, true);
         }
         const {title, categoryId, author, year, genre, status} = req.body;
+        const {originalname, mimetype, filename, path} = req.file;
         const username = (req.user as IUser).username
         let publicItem = true
         if (status == "private")
             publicItem = false
 
-        const newItem = await prisma.item.create({
-            data: {
-                title: title,
-                categoryId: parseInt(categoryId),
-                author: author,
-                year: parseInt(year),
-                genre: genre,
-                ownerUsername: username,
-                public: publicItem
-            },
-        });
-        if (!newItem) {
-            undoAddingFile(req);
-            return redirectHandler(req, res, '/resources/addItem',
+        if(await itemRepository.createItem(
+            {id:0, title: title,categoryId: parseInt(categoryId),author: author,year: parseInt(year),genre: genre,ownerUsername: username,public: publicItem},
+            {originalName: originalname, mimeType: mimetype, fileName: filename, filePath: path, id: 0, itemId: 0}
+            )
+        )
+            return redirectHandler(req, res, '/',
+                {text: 'Item added successfully', isError: false});
+        return redirectHandler(req, res, '/resources/addItem',
                 {text: 'Item not added', isError: true}, true);
-        }
-        const {originalname, mimetype, filename, path} = req.file;
-
-        await prisma.file.create({
-            data: {
-                originalName: originalname,
-                mimeType: mimetype,
-                fileName: filename,
-                filePath: path,
-                itemId: newItem.id
-            },
-        });
-        return redirectHandler(req, res, '/',
-            {text: 'Item added successfully', isError: false});
 
     } catch (error) {
         undoAddingFile(req);
@@ -84,18 +67,13 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
 
 export const getFile = async (req: Request, res: Response): Promise<any> => {
     try {
-        const fileId = req.params.id;
-        const file = await prisma.file.findUnique({
-            where: {
-                id: parseInt(fileId),
-            },
-        });
+        const fileId = parseInt(req.params.id);
+        const file = await itemRepository.getFile(fileId)
 
         if (!file) {
             return redirectHandler(req, res, '/resources/browse',
                 {text: 'File not found', isError: true}, true);
         }
-        console.log(file.filePath)
         const fileData = fs.createReadStream(file.filePath)
 
         res.setHeader('Content-Disposition', `attachment; filename=${file.originalName}`);
@@ -176,17 +154,7 @@ export const getItems = async (req: Request, res: Response) => {
         where = generateWhere(title, categoryId, author, year, genre, itemsStatus);
     }
 
-
-
-    const Items = await prisma.item.findMany({
-        where: where, include: {
-            file: {
-                select: {
-                    id: true, originalName: true, mimeType: true
-                },
-            }, category: true
-        },
-    })
+    const Items = await itemRepository.getItems(where)
 
     if (Items.length > 0) {
         (req.session as IMySession).items = Items;

@@ -7,7 +7,6 @@ export const redirectHandler = (req: Request, res: Response, redirectUrl: string
     if (message !== undefined) {
         (req.session as IMySession).message = message;
     }
-    console.log(saveFormData)
     if (saveFormData) (req.session as IMySession).formData = req.body;
     return res.redirect(redirectUrl);
 }

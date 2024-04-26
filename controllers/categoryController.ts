@@ -1,12 +1,12 @@
 import {Request, Response} from "express";
-import {PrismaClient} from '@prisma/client';
+import CategoryRepository from "../services/categoryRepository";
+import prisma from "../prisma/prismaClient";
 
-const prisma = new PrismaClient();
-
+const categoryRepository = new CategoryRepository(prisma)
 export const getCategoryList = async () => {
-    return await prisma.category.findMany()
+    return await categoryRepository.getCategories()
 }
 export const getCategories = async (req: Request, res: Response): Promise<any> => {
-    const categories = await prisma.category.findMany()
+    const categories = await categoryRepository.getCategories()
     return res.json({categories});
 };

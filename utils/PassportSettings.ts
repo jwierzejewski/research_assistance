@@ -10,7 +10,6 @@ export const setupPassport = () => {
         done(null, user.username);
     });
 
-// Deserialization
     passport.deserializeUser(async (username: string, done) => {
         const user = await prisma.user.findUnique({
             where: {
@@ -20,7 +19,6 @@ export const setupPassport = () => {
         done(null, user);
     });
 
-// Local strategy for Passport
     passport.use(new passportStrategy.Strategy({usernameField: "username"}, async (username, password, done) => {
         try {
             if (!username) {

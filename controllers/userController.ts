@@ -1,35 +1,23 @@
 import {NextFunction, Request, Response} from "express";
 import {PrismaClient} from '@prisma/client';
 import bcrypt from "bcryptjs"
-import {IMessage} from "../utils/IMessage";
 import {validationErrorHandler} from "../utils/errorHandler"
 import {redirectHandler} from "../utils/redirectHandler";
 import {IMySession} from "../utils/IMySession";
+import UserRepository from "../services/userRepository";
+import prisma from "../prisma/prismaClient";
 
-
-const prisma = new PrismaClient();
 const salt = 10
-
+const userRepository = new UserRepository(prisma)
 export const signup = async (req: Request, res: Response): Promise<any> => {
 
     validationErrorHandler(req, res, "/user/signup");
 
     const {username, password, firstname, lastname} = req.body;
-    const user = await prisma.user.findUnique({
-        where: {
-            username: username
-        }
-    });
-    if (!user) {
-        console.log(password)
+    if (!await userRepository.userExist(username)) {
         const hashedPassword = await bcrypt.hash(password, salt)
-        console.log(hashedPassword)
-        const userSignup = await prisma.user.create({
-            data: {
-                username: username, password: hashedPassword, firstname: firstname, lastname: lastname,
-            }
-        });
-        if (userSignup) {
+
+        if (await userRepository.createUser(username,hashedPassword,firstname,lastname)) {
             return redirectHandler(req, res, '/',
                 {text: 'Signup successfully', isError: false});
         }
@@ -61,7 +49,7 @@ export const userLogout = (req: Request, res: Response) => {
 }
 
 export const userLoginFailed = (req: Request, res: Response) => {
-    return redirectHandler(req, res, '/',
+    return redirectHandler(req, res, '/user/login',
         {text: 'Incorrect user credentials', isError: true});
 }
 
@@ -71,6 +59,6 @@ export const userLogin = async (req: Request, res: Response) => {
 };
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction): Response | void => {
-    if (req.user) return next(); else res.redirect("/");
+    if (req.user) return next(); else res.redirect("/user/login");
 }
 

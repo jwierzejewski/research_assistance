@@ -41,7 +41,6 @@ export const getFromArxiv = async (req: Request, res: Response) => {
     var body = await response.text()
 
     const data: any = parseXMLData(body);
-    console.log(data)
 
     if (data!.feed!.entry!.length > 0) {
         (req.session as IMySession).arxivItems = data!.feed!.entry

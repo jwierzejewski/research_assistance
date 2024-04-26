@@ -35,7 +35,6 @@ app.use('/user', userRouter)
 app.use('/resources', resourcesRouter)
 
 app.get('/', (req, res) => {
-    console.log(req.user)
     if (req.isAuthenticated()) {
         res.render('homeLogged', {
             title: "Research assistance - Home",
