@@ -1,4 +1,4 @@
-import {body} from "express-validator";
+import {body, oneOf} from "express-validator";
 import validator from "validator";
 
 const passwordMsg = 'Password must be at least 8 characters contain an uppercase and lowercase letter and number'
@@ -31,7 +31,13 @@ export const addResourceValidate = [body('title').isLength({
     max: currentYear
 }).withMessage(`Publication Year should be between 1500 and ${currentYear}`).escape(), body('categoryId').isInt().escape(),]
 
-export const arxivValidate = [body('title').escape(), body('author').escape(),]
+export const arxivValidate = [
+    body('title').escape(),
+    body('author').escape(),
+    oneOf([body('title').notEmpty(), body('author').notEmpty()],{
+        message: 'At least one field should be not empty',
+    })
+]
 
 export const browseValidate = [body('title').trim().escape(), body('genre').escape(), body('author').escape(), body('year').custom(value => {
     if (!validator.isEmpty(value) && !validator.isInt(value)) {
