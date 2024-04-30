@@ -1,11 +1,10 @@
-import {PrismaClient, Item, File} from "@prisma/client";
-import {redirectHandler} from "../utils/redirectHandler";
-import {Request} from "express";
+import {File, Item, PrismaClient} from "@prisma/client";
 import fs from "fs";
 
-export default class ItemRepository{
+export default class ItemRepository {
     prisma: PrismaClient;
-    constructor(prisma: PrismaClient){
+
+    constructor(prisma: PrismaClient) {
         this.prisma = prisma
     }
 
@@ -18,7 +17,8 @@ export default class ItemRepository{
             }
         });
     }
-    async createItem(itemData: Item, fileData: File){
+
+    async createItem(itemData: Item, fileData: File) {
         const newItem = await this.prisma.item.create({
             data: {
                 title: itemData.title,
@@ -49,7 +49,7 @@ export default class ItemRepository{
         return false
     }
 
-    async getItems(where: any){
+    async getItems(where: any) {
         return this.prisma.item.findMany({
             where: where, include: {
                 file: {
@@ -61,7 +61,7 @@ export default class ItemRepository{
         })
     }
 
-    async getFile(fileId: number):Promise<File | null>{
+    async getFile(fileId: number): Promise<File | null> {
         return this.prisma.file.findUnique({
             where: {
                 id: fileId
@@ -69,7 +69,7 @@ export default class ItemRepository{
         });
     }
 
-    async shareItem(itemId: number, userId: number){
+    async shareItem(itemId: number, userId: number) {
         const share = await this.prisma.item.update({
             where: {
                 id: itemId
@@ -77,11 +77,10 @@ export default class ItemRepository{
                 sharedWith: {connect: {id: userId}}
             }
         });
-        if(share)
+        if (share)
             return true
         return false
     }
-
 
 
 }

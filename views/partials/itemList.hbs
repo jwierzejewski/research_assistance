@@ -1,12 +1,12 @@
 <p class="item-list">
-    {{#if (and sharingEnabled (not sharing))}}
-        <form action="/resources/initSharing" method="get">
-            <button class="small-button" type="submit">Share Items</button>
-        </form>
-    {{/if}}
+{{#if (and sharingEnabled (not sharing))}}
+    <form action="/resources/initSharing" method="get">
+        <button class="small-button" type="submit">Share Items</button>
+    </form>
+{{/if}}
 
-    {{#if sharing}}
-        {{>sharingItemsForm}}
-    {{else}}
-        {{>showItems}}
-    {{/if}}
+{{#if sharing}}
+    {{>sharingItemsForm}}
+{{else}}
+    {{>showItems}}
+{{/if}}

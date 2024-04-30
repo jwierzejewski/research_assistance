@@ -1,5 +1,4 @@
 import {Request, Response} from "express";
-import {PrismaClient} from '@prisma/client';
 import {IUser} from "../utils/IUser";
 import {redirectHandler} from "../utils/redirectHandler";
 import {IMySession} from "../utils/IMySession";
@@ -24,7 +23,7 @@ export const shareItems = async (req: Request, res: Response): Promise<any> => {
     const user = await userRepository.getUser(username)
     if (user) {
         for (const itemId of selectedItems) {
-            if (! itemRepository.shareItem(parseInt(itemId),user.id)) {
+            if (!itemRepository.shareItem(parseInt(itemId), user.id)) {
                 return redirectHandler(req, res, '/resources/browse',
                     {text: 'Sharing failed', isError: true});
             }

@@ -1,5 +1,4 @@
 import {NextFunction, Request, Response} from "express";
-import {PrismaClient} from '@prisma/client';
 import bcrypt from "bcryptjs"
 import {validationErrorHandler} from "../utils/errorHandler"
 import {redirectHandler} from "../utils/redirectHandler";
@@ -14,16 +13,17 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     validationErrorHandler(req, res, "/user/signup");
 
     const {username, password, firstname, lastname} = req.body;
+
     if (!await userRepository.userExist(username)) {
         const hashedPassword = await bcrypt.hash(password, salt)
 
-        if (await userRepository.createUser(username,hashedPassword,firstname,lastname)) {
+        if (await userRepository.createUser(username, hashedPassword, firstname, lastname)) {
             return redirectHandler(req, res, '/',
                 {text: 'Signup successfully', isError: false});
         }
     } else {
         return redirectHandler(req, res, '/user/signup',
-            {text: 'User already exist', isError: true},true);
+            {text: 'User already exist', isError: true}, true);
     }
 };
 export const loginPage = (req: Request, res: Response) => {

@@ -11,39 +11,39 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  username String @unique
-  password String
-  firstname String
-  lastname String
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  password    String
+  firstname   String
+  lastname    String
   sharedItems Item[]
 }
 
 model Item {
-  id  Int @id @default(autoincrement())
-  title String
+  id            Int     @id @default(autoincrement())
+  title         String
   categoryId    Int
-  author String
-  year Int
-  genre String
+  author        String
+  year          Int
+  genre         String
   ownerUsername String
-  file File?
-  public Boolean @default(false)
-  sharedWith User[]
+  file          File?
+  public        Boolean @default(false)
+  sharedWith    User[]
 
-  @@unique([author,title,year,ownerUsername])
+  category Category @relation(fields: [categoryId], references: [id])
 
-  category Category  @relation(fields: [categoryId], references: [id])
+  @@unique([author, title, year, ownerUsername])
 }
 
-model File{
-  id Int @id @default(autoincrement())
+model File {
+  id           Int    @id @default(autoincrement())
   originalName String
-  mimeType String
-  fileName String
-  filePath String
-  item   Item @relation(fields: [itemId], references: [id])
-  itemId Int  @unique
+  mimeType     String
+  fileName     String
+  filePath     String
+  item         Item   @relation(fields: [itemId], references: [id])
+  itemId       Int    @unique
 }
 
 model Category {

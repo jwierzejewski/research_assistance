@@ -12,7 +12,8 @@
                     <select name="categoryId">
                         <option value="">all</option>
                         {{#each categories}}
-                            <option value={{id}} {{#if (eq ../formData.categoryId id)}} selected {{/if}}>{{name}}</option>
+                            <option value={{id}} {{#if (eq ../formData.categoryId id)}}
+                                    selected {{/if}}>{{name}}</option>
                         {{/each}}
                     </select>
                 </td>

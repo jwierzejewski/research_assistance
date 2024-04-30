@@ -1,6 +1,6 @@
 import {IMessage} from "./IMessage";
 import {Session} from "express-session";
-import { Item } from '@prisma/client';
+import {Item} from '@prisma/client';
 
 export interface IMySession extends Session {
     message?: IMessage,

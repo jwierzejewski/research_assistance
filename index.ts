@@ -7,13 +7,12 @@ import {setupPassport} from "./utils/PassportSettings";
 import {IUser} from "./utils/IUser";
 import {userRouter} from "./routers/userRouter";
 import {resourcesRouter} from "./routers/resourceRouter"
-import {IMessage} from "./utils/IMessage";
 import {IMySession} from "./utils/IMySession";
 import {redirectHandler} from "./utils/redirectHandler";
 
 dotenv.config();
 
-const app: Express = express();
+export const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
@@ -53,7 +52,7 @@ app.get('/', (req, res) => {
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
-    return redirectHandler(req, res, '/',
+    return redirectHandler(req, res, req.originalUrl,
         {text: 'Something went wrong', isError: true});
 });
 

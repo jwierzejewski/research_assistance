@@ -1,14 +1,13 @@
-import {PrismaClient, Item, File} from "@prisma/client";
-import {redirectHandler} from "../utils/redirectHandler";
-import {Request} from "express";
-import fs from "fs";
+import {PrismaClient} from "@prisma/client";
 
-export default class CategoryRepository{
+export default class CategoryRepository {
     prisma: PrismaClient;
-    constructor(prisma: PrismaClient){
+
+    constructor(prisma: PrismaClient) {
         this.prisma = prisma
     }
-    async getCategories(){
+
+    async getCategories() {
         return this.prisma.category.findMany()
     }
 }

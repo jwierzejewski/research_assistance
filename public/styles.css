@@ -1,7 +1,8 @@
-body{
+body {
     margin: 0;
     text-align: center;
 }
+
 .menu-bar {
     background-color: #333;
     color: #fff;
@@ -47,13 +48,14 @@ body{
 }
 
 .login-form input[type="text"],
-.login-form input[type="password"]{
+.login-form input[type="password"] {
     background-color: rgba(100, 100, 100, 0.1);
     width: 92%;
     padding: 10px;
     margin-bottom: 10px;
     font-size: 16px;
 }
+
 .login-form button[type="submit"] {
     width: 100%;
     padding: 10px;
@@ -92,16 +94,18 @@ body{
 .item-form input[type="number"],
 .item-form input[type="file"],
 .item-form select,
-.item-form input[type="password"]{
+.item-form input[type="password"] {
     width: 92%;
     padding: 4px;
     margin-bottom: 10px;
     font-size: 14px;
 }
-tr .label{
+
+tr .label {
     font-size: 14px;
     padding-bottom: 7px;
 }
+
 .item-form button[type="submit"] {
     width: 100%;
     padding: 10px;
@@ -129,26 +133,28 @@ tr .label{
     flex-direction: column;
 }
 
-.item{
+.item {
     border: 1px solid #ccc;
-    border-radius:20px;
+    border-radius: 20px;
     padding: 20px 30px 20px 30px;
     margin: 20px 0px 20px 0px;
 }
-.item div{
+
+.item div {
     margin-bottom: 3px;
 }
 
-.small-button{
+.small-button {
     padding: 3px 6px 3px 6px;
-    background-color:transparent;
+    background-color: transparent;
     color: #007bff;
     border: 2px solid #007bff;
-    border-radius:20px;
+    border-radius: 20px;
     cursor: pointer;
     text-decoration: none;
 }
-.small-button:hover{
+
+.small-button:hover {
     background-color: rgba(100, 100, 100, 0.1);
     color: #004aff;
     border-color: #004aff;
@@ -157,7 +163,7 @@ tr .label{
 
 .message-bar, .error-message-bar {
     padding: 0;
-    font-size:16px;
+    font-size: 16px;
     background-color: #ff0000;
     color: #fff;
     text-align: center;
@@ -186,6 +192,7 @@ tr .label{
     flex-direction: column;
     height: 80vh;
 }
+
 .button {
     font-size: larger;
     flex: 1;
@@ -202,6 +209,7 @@ tr .label{
     cursor: pointer;
     transition: background-color 0.3s;
 }
+
 .button:hover {
     background-color: #0056b3;
 }

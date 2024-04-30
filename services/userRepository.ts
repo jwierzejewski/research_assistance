@@ -18,21 +18,21 @@ export default class UserRepository {
         return false
     }
 
-    async userExist(username:string){
+    async userExist(username: string) {
         const user = await this.prisma.user.findUnique(
             {
-                where: {username:username}
+                where: {username: username}
             })
         if (user)
             return true
         return false
     }
 
-    async getUser(username: string){
-         return this.prisma.user.findUnique(
-             {
-                 where: {username:username}
-             })
+    async getUser(username: string) {
+        return this.prisma.user.findUnique(
+            {
+                where: {username: username}
+            })
     }
 
 }
