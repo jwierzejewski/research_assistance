@@ -1,32 +1,11 @@
 {{>menuBarItems}}
+
 <div class="item-container">
-    <form class="item-form" action="/resources/getFromArxiv" method="post">
-        <table>
-            <tr>
-                <td>
-                    <div class="label">title:</div>
-                </td>
-                <td><input type="text" name="title" value="{{formData.title}}"/></td>
-            </tr>
-            <tr>
-                <td>
-                    <div class="label">author:</div>
-                </td>
-                <td><input type="text" name="author" value="{{formData.author}}"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    <button type="submit">Search</button>
-                </td>
-            </tr>
-        </table>
-    </form>
+    {{>arxivSearchingForm}}
 
     {{#if arxivItems}}
         {{>itemArxivList}}
     {{/if}}
-
 </div>
 
 {{#if message}}

@@ -12,6 +12,7 @@ import {getFromArxiv} from "./arxivController";
 import {IMySession} from "../utils/IMySession";
 import ItemRepository from "../services/itemRepository";
 import prisma from "../prisma/prismaClient";
+import {generateWhere} from "../utils/itemsUtils";
 
 const itemRepository = new ItemRepository(prisma);
 export const storage = multer.diskStorage({
@@ -60,7 +61,14 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
                 ownerUsername: username,
                 public: publicItem
             },
-            {originalName: originalname, mimeType: mimetype, fileName: filename, filePath: path, id: 0, itemId: 0}
+            {
+                originalName: originalname,
+                mimeType: mimetype,
+                fileName: filename,
+                filePath: path,
+                id: 0,
+                itemId: 0
+            }
         )
         )
             return redirectHandler(req, res, '/',
@@ -92,63 +100,6 @@ export const getFile = async (req: Request, res: Response): Promise<any> => {
         return redirectHandler(req, res, '/resources/browse',
             {text: 'Downloading file failure', isError: true}, true);
     }
-}
-
-function generateWhere(req:Request) {
-    const {title, categoryId, author, year, genre} = req.body;
-    let {itemsStatus} = req.body;
-
-    let username;
-    if (req.isAuthenticated()) {
-        username = (req.user as IUser).username
-    } else {
-        itemsStatus = "public"
-    }
-
-    let where: Prisma.ItemWhereInput = {};
-    if (title !== undefined && title != "") {
-        where.title = {
-            contains: title
-        };
-    }
-    if (categoryId !== undefined && categoryId != "") {
-        where.categoryId = parseInt(categoryId)
-    }
-
-    if (author !== undefined && author != "") {
-        where.author = {
-            contains: author
-        };
-    }
-
-    if (year !== undefined && year != "") {
-        where.year = parseInt(year);
-    }
-
-    if (genre !== undefined && genre != "") {
-        where.genre = {
-            contains: genre
-        };
-    }
-    if (itemsStatus == "all") {
-        where.OR = [
-            {public: true},
-            {AND: [{ownerUsername: username}, {public: false}]},
-            {sharedWith: {some: {username: username}}}
-        ];
-    } else if (itemsStatus == "public") {
-        where.public = true
-    } else if (itemsStatus == "private") {
-        where.OR = [
-            {AND: [{ownerUsername: username}, {public: false}]},
-            {AND: [{sharedWith: {some: {username: username}}}, {public: false}]}
-        ];
-    } else if (itemsStatus == "own") {
-        where.ownerUsername = username
-    } else if (itemsStatus == "own private") {
-        where.AND = [{ownerUsername: username}, {public: false}]
-    }
-    return where;
 }
 
 export const getItems = async (req: Request, res: Response) => {

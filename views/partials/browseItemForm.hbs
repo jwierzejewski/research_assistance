@@ -1,0 +1,39 @@
+<form class="item-form" action="/resources/getItems" method="post">
+    <table>
+        {{>itemInfoInputs}}
+        <tr>
+            <td>
+                <div class="label">category:</div>
+            </td>
+            <td>
+                <select name="categoryId">
+                    <option value="">all</option>
+                    {{#each categories}}
+                        <option value={{id}} {{#if (eq ../formData.categoryId id)}}
+                                selected {{/if}}>{{name}}</option>
+                    {{/each}}
+                </select>
+            </td>
+        </tr>
+        {{#if loggedIn}}
+            <td>
+                <div class="label">items status:</div>
+            </td>
+            <td>
+                <select name="itemsStatus">
+                    <option value="all">all</option>
+                    <option value="public">public</option>
+                    <option value="private">private</option>
+                    <option value="own">own</option>
+                    <option value="own private">private own</option>
+                </select>
+            </td>
+        {{/if}}
+        <tr>
+            <td></td>
+            <td>
+                <button type="submit">Search</button>
+            </td>
+        </tr>
+    </table>
+</form>

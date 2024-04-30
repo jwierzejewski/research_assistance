@@ -1,35 +1,10 @@
 import {Request, Response} from "express";
-import {parseString} from 'xml2js';
 import {validationErrorHandler} from "../utils/errorHandler";
 import {redirectHandler} from "../utils/redirectHandler";
 import {IMySession} from "../utils/IMySession";
+import {createQueryUrl, parseXMLData} from "../utils/arxivUtils";
 
-function createQueryUrl(title: string, author: string) {
-    let searchQuery = ""
-    if (title !== undefined && title != "") {
-        searchQuery += title;
-    }
-    if (author !== undefined && author != "") {
-        if (searchQuery != "") {
-            searchQuery += "+AND+";
-        }
-        searchQuery += author;
-    }
-    let url = "http://export.arxiv.org/api/query?search_query="
-    url += searchQuery
-    return url;
-}
 
-function parseXMLData(body: string) {
-    let data;
-    parseString(body, (err, result) => {
-        if (err) {
-            throw err;
-        }
-        data = result
-    });
-    return data
-}
 
 export const getFromArxiv = async (req: Request, res: Response) => {
     validationErrorHandler(req, res, "/resources/getFromArxiv");

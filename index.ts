@@ -14,6 +14,7 @@ dotenv.config();
 
 export const app: Express = express();
 const port = process.env.PORT || 3000;
+const SECRET: string = process.env.SECRET || "secret"
 
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
@@ -23,8 +24,9 @@ app.set('view engine', '.hbs');
 app.set('views', './views');
 
 app.use(session({
-    secret: 'secret', resave: false, saveUninitialized: false
+    secret: SECRET, resave: false, saveUninitialized: false
 }));
+
 app.use(passport.initialize());
 app.use(passport.authenticate('session'));
 
