@@ -44,9 +44,8 @@ export default class ItemRepository {
                 itemId: newItem.id
             },
         });
-        if (file)
-            return true
-        return false
+        return !!file;
+
     }
 
     async getItems(where: any) {
@@ -77,9 +76,22 @@ export default class ItemRepository {
                 sharedWith: {connect: {id: userId}}
             }
         });
-        if (share)
-            return true
-        return false
+        return !!share;
+
+    }
+
+    async isItemExist(title: string, author: string, year: number, ownerUsername: string){
+        const item = await this.prisma.item.findUnique({ where:{
+                author_title_year_ownerUsername: {
+                    author: author,
+                    title: title,
+                    year: year,
+                    ownerUsername: ownerUsername
+                }
+            }})
+        console.log(item)
+        return !!item;
+
     }
 
 

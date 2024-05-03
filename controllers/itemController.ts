@@ -1,9 +1,7 @@
-import {NextFunction, Request, Response} from "express";
-import {Prisma} from '@prisma/client';
+import {Request, Response} from "express";
 import multer from "multer";
 import fs from "fs";
 import {IUser} from "../utils/IUser";
-import {IMessage} from "../utils/IMessage";
 import {validationErrorHandler} from "../utils/errorHandler";
 import {getCategoryList} from "./categoryController";
 import {and, eq, not} from "../utils/helpers";
@@ -36,7 +34,7 @@ function undoAddingFile(req: Request) {
     });
 }
 
-export const addItemFile = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+export const addItemFile = async (req: Request, res: Response): Promise<any> => {
     validationErrorHandler(req, res, "/resources/addItem");
     try {
         if (!req.file) {
@@ -49,6 +47,14 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
         let publicItem = true
         if (status == "private")
             publicItem = false
+
+        if (await itemRepository.isItemExist(title,author,parseInt(year),username))
+        {
+            undoAddingFile(req);
+            return redirectHandler(req, res, '/resources/addItem',
+                {text: 'Item already exist', isError: true}, true);
+        }
+
 
         if (await itemRepository.createItem(
             {
@@ -73,6 +79,8 @@ export const addItemFile = async (req: Request, res: Response, next: NextFunctio
         )
             return redirectHandler(req, res, '/',
                 {text: 'Item added successfully', isError: false});
+
+        undoAddingFile(req);
         return redirectHandler(req, res, '/resources/addItem',
             {text: 'Item not added', isError: true}, true);
 
@@ -116,8 +124,7 @@ export const getItems = async (req: Request, res: Response) => {
             undefined, true);
 
     } else {
-        const message: IMessage = {text: "Items not found - searching in arxiv", isError: true};
-        (req.session as IMySession).message = message;
+        (req.session as IMySession).message = {text: "Items not found - searching in arxiv", isError: true};
         return getFromArxiv(req, res).catch(() => {
             return redirectHandler(req, res, '/resources/browse',
                 {text: 'Items not found', isError: true}, true);
