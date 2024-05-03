@@ -10,7 +10,6 @@ export const validationErrorHandler = (req: Request, res: Response, redirectUrl:
         (req.session as IMySession).formData = req.body
         let errorMsg = "";
         errors.array().forEach(error => {
-            console.log(error.msg);
             errorMsg += error.msg + "\n";
         });
 

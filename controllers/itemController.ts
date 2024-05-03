@@ -24,16 +24,6 @@ export const storage = multer.diskStorage({
 
 export const upload = multer({storage: storage});
 
-function undoAddingFile(req: Request) {
-    if (req.file) fs.unlink(req.file.path, (err) => {
-        if (err) {
-            console.log('Error during file removing:', err);
-        } else {
-            console.log('File adding has been withdrawn');
-        }
-    });
-}
-
 export const addItemFile = async (req: Request, res: Response): Promise<any> => {
     validationErrorHandler(req, res, "/resources/addItem");
     try {
@@ -50,7 +40,7 @@ export const addItemFile = async (req: Request, res: Response): Promise<any> => 
 
         if (await itemRepository.isItemExist(title,author,parseInt(year),username))
         {
-            undoAddingFile(req);
+            itemRepository.undoAddingFile(req.file.path);
             return redirectHandler(req, res, '/resources/addItem',
                 {text: 'Item already exist', isError: true}, true);
         }
@@ -80,12 +70,12 @@ export const addItemFile = async (req: Request, res: Response): Promise<any> => 
             return redirectHandler(req, res, '/',
                 {text: 'Item added successfully', isError: false});
 
-        undoAddingFile(req);
+        itemRepository.undoAddingFile(req.file.path);
         return redirectHandler(req, res, '/resources/addItem',
             {text: 'Item not added', isError: true}, true);
 
     } catch (error) {
-        undoAddingFile(req);
+        itemRepository.undoAddingFile(req.file!.path);
         throw error
     }
 }

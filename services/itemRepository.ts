@@ -8,13 +8,10 @@ export default class ItemRepository {
         this.prisma = prisma
     }
 
-    undoAddingFile(file: File) {
-        if (file) fs.unlink(file.filePath, (err) => {
-            if (err) {
-                console.log('Error during file removing:', err);
-            } else {
-                console.log('File adding has been withdrawn');
-            }
+    undoAddingFile(filePath: string) {
+        fs.unlink(filePath, (err) => {
+            if (err)
+                throw err
         });
     }
 
@@ -31,7 +28,7 @@ export default class ItemRepository {
             },
         });
         if (!newItem) {
-            this.undoAddingFile(fileData);
+            this.undoAddingFile(fileData.filePath);
             return false
         }
 
@@ -89,7 +86,6 @@ export default class ItemRepository {
                     ownerUsername: ownerUsername
                 }
             }})
-        console.log(item)
         return !!item;
 
     }
