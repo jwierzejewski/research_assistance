@@ -8,7 +8,7 @@ export const validationErrorHandler = (req: Request, res: Response, redirectUrl:
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         (req.session as IMySession).formData = req.body
-        var errorMsg = "";
+        let errorMsg = "";
         errors.array().forEach(error => {
             console.log(error.msg);
             errorMsg += error.msg + "\n";

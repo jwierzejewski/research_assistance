@@ -23,7 +23,7 @@ export const shareItems = async (req: Request, res: Response): Promise<any> => {
     const user = await userRepository.getUser(username)
     if (user) {
         for (const itemId of selectedItems) {
-            if (!itemRepository.shareItem(parseInt(itemId), user.id)) {
+            if (!await itemRepository.shareItem(parseInt(itemId), user.id)) {
                 return redirectHandler(req, res, '/resources/browse',
                     {text: 'Sharing failed', isError: true});
             }

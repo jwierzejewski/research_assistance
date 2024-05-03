@@ -4,7 +4,7 @@ import prisma from "../prisma/prismaClient";
 
 const categoryRepository = new CategoryRepository(prisma)
 export const getCategoryList = async () => {
-    return await categoryRepository.getCategories()
+    return categoryRepository.getCategories();
 }
 export const getCategories = async (req: Request, res: Response): Promise<any> => {
     const categories = await categoryRepository.getCategories()

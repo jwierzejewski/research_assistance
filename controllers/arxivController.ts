@@ -13,7 +13,7 @@ export const getFromArxiv = async (req: Request, res: Response) => {
     let url = createQueryUrl(title, author);
 
     const response = await fetch(url);
-    var body = await response.text()
+    const body = await response.text()
 
     const data: any = parseXMLData(body);
 

@@ -13,9 +13,8 @@ export default class UserRepository {
                 username: username, password: hashedPassword, firstname: firstname, lastname: lastname,
             }
         });
-        if (userSignup)
-            return true;
-        return false
+        return !!userSignup;
+
     }
 
     async userExist(username: string) {
@@ -23,9 +22,8 @@ export default class UserRepository {
             {
                 where: {username: username}
             })
-        if (user)
-            return true
-        return false
+        return !!user;
+
     }
 
     async getUser(username: string) {

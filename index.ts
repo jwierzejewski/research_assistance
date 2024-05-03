@@ -1,4 +1,4 @@
-import express, {Express, NextFunction, Request, Response} from "express";
+import express, {Express, Request, Response} from "express";
 import dotenv from "dotenv";
 import {engine} from 'express-handlebars';
 import session from "express-session";
@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
 });
 
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response) => {
     console.error(err.stack);
     return redirectHandler(req, res, req.originalUrl,
         {text: 'Something went wrong', isError: true});
